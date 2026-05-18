@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobprep.jobprep_platform.mapper.UserMapper">
+
+    <sql id="userColumns">
+        user_id,
+        account,
+        username,
+        password,
+        gender,
+        birthday,
+        avatar_url,
+        email,
+        school,
+        signature,
+        is_admin,
+        is_banned,
+        last_login_at,
+        created_at,
+        updated_at
+    </sql>
+
+    <!-- find user by account  -->
+    <select id="findByAccount" resultType="com.jobprep.jobprep_platform.model.entity.User">
+        SELECT
+            <include refid="userColumns"/>
+        FROM `user`
+        WHERE account = #{account}
+    </select>
+    <!-- insert method -->
+    <insert id="insert" keyProperty="userId" useGeneratedKeys="true">
+        INSERT INTO `user`(
+            account,
+            username,
+            password,
+            email
+        ) VALUES (
+            #{account},
+            #{username},
+            #{password},
+            #{email}
+        )
+    </insert>
+
+    <!--primarykey search-->
+    <select id="findById" resultType="com.jobprep.jobprep_platform.model.entity.User">
+        SELECT    
+            <include refid="userColumns"/>
+        FROM `user`
+        WHERE user_id = #{userId}
+    </select>
+
+    <!--find by batch-->
+    <select id="findByIdBatch" resultType="com.jobprep.jobprep_platform.model.entity.User">
+        SELECT
+            <include refid="userColumns"/>
+        FROM `user`
+        <where>
+            <if test="userIds != null and userIds.size > 0">
+                user_id IN
+                <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                    #{userId}
+                </foreach>
+            </if>
+            <if test="userIds == null or userIds.size == 0">
+                1 = 0
+            </if>
+        </where>
+    </select>
+
+    <!-- Combined query WHERE -->
+    <sql id="whereClause">
+        <where>
+            <if test="queryParams.userId != null">
+                AND user_id = #{queryParams.userId}
+            </if>
+            <if test="queryParams.account != null and queryParams.account != ''">
+                AND account LIKE CONCAT('%', #{queryParams.account}, '%')
+            </if>
+            <if test="queryParams.username != null and queryParams.username != ''">
+                AND username LIKE CONCAT('%', #{queryParams.username}, '%')
+            </if>
+            <if test="queryParams.isAdmin != null">
+                AND is_admin = #{queryParams.isAdmin}
+            </if>
+            <if test="queryParams.isBanned != null">
+                AND is_banned = #{queryParams.isBanned}
+            </if>
+        </where>
+    </sql>
+
+    <!--Query the user list based on conditions and paginat -->
+    <select id="findByQueryParam" resultType="com.jobprep.jobprep_platform.model.entity.User">
+        SELECT
+            <include refid="userColumns"/>
+        FROM `user`
+        <include refid="whereClause"/>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countByQueryParam" resultType="integer">
+        SELECT COUNT(*)
+        FROM `user`
+        <include refid="whereClause"/>
+    </select>
+
+    <!--update user-->
+    <update id="update" parameterType="com.jobprep.jobprep_platform.model.entity.User">
+        UPDATE `user`
+        <set>
+            <if test="username != null">  username = #{username},</if>
+            <if test="gender != null">    gender = #{gender},</if>
+            <if test="birthday != null">  birthday = #{birthday},</if>
+            <if test="avatarUrl != null"> avatar_url = #{avatarUrl},</if>
+            <if test="email != null">     email = #{email},</if>
+            <if test="school != null">    school = #{school},</if>
+            <if test="signature != null"> signature = #{signature},</if>
+            updated_at = NOW()
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateLastLoginAt">
+        UPDATE `user`
+        SET last_login_at = CURRENT_TIMESTAMP
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="getTodayLoginCount" resultType="integer">
+        SELECT COUNT(*) FROM `user` WHERE DATE(last_login_at) = CURDATE()
+    </select>
+
+    <select id="getTodayRegisterCount" resultType="integer">
+        SELECT COUNT(*) FROM `user` WHERE DATE(created_at) = CURDATE()
+    </select>
+
+    <select id="getTotalRegisterCount" resultType="integer">
+        SELECT COUNT(*) FROM `user`
+    </select>
+
+    <!-- find user by email-->
+    <select id="findByEmail" resultType="com.jobprep.jobprep_platform.model.entity.User">
+        SELECT
+            <include refid="userColumns"/>
+        FROM `user`
+        WHERE email = #{email}
+    </select>
+
+    <!--Search: Match username/account/email-->
+    <select id="searchUsers" resultType="com.jobprep.jobprep_platform.model.entity.User">
+        SELECT
+            <include refid="userColumns"/>
+        FROM `user`
+        WHERE 
+            username LIKE CONCAT(#{keyword}, '%')
+            OR account LIKE CONCAT(#{keyword}, '%')
+            OR email LIKE CONCAT(#{keyword}, '%')
+        ORDER BY 
+            CASE 
+                WHEN username = #{keyword} THEN 1
+                WHEN account = #{keyword} THEN 2
+                WHEN email = #{keyword} THEN 3
+                WHEN username LIKE CONCAT(#{keyword}, '%') THEN 4
+                WHEN account LIKE CONCAT(#{keyword}, '%') THEN 5
+                WHEN email LIKE CONCAT(#{keyword}, '%') THEN 6
+                ELSE 7
+            END
+        LIMIT #{limit} OFFSET #{offset}
+        
+    </select>
+</mapper>

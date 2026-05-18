@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/jobprep?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+    username: ${MYSQL_USER:jobprep}
+    password: ${MYSQL_PASSWORD:jobprep123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# Custom upload config (used by LocalFileServiceImpl/WebConfig via @Value)
+upload:
+  path: ${user.dir}/tmp/uploads # upload path
+  url:
+    prefix: http://localhost:8080/images # url prefix for accessing uploaded files
