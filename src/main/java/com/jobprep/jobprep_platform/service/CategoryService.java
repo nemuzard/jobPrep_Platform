@@ -3,6 +3,7 @@ package com.jobprep.jobprep_platform.service;
 import com.jobprep.jobprep_platform.model.base.ApiResponse;
 import com.jobprep.jobprep_platform.model.base.EmptyVO;
 import com.jobprep.jobprep_platform.model.dto.category.CreateCategoryBody;
+import com.jobprep.jobprep_platform.model.dto.category.UpdateCategoryBody;
 import com.jobprep.jobprep_platform.model.vo.category.CategoryVO;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -45,7 +46,7 @@ public interface CategoryService {
      * @param updateCategoryBody
      * @return
      */
-    ApiResponse<EmptyVO> updateCategory(Integer categoryId, CreateCategoryBody updateCategoryBody);
+    ApiResponse<EmptyVO> updateCategory(Integer categoryId, UpdateCategoryBody updateCategoryBody);
 
     /**
      * find a category by name, if not exist, create a new category with the given name and return it

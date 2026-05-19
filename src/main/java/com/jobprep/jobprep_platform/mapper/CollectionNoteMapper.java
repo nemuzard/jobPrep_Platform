@@ -15,7 +15,7 @@ public interface CollectionNoteMapper {
      * @return
      */
     List<Integer> findUserCollectedNoteIds(
-        @Param("userId") Integer userId,
+        @Param("userId") Long userId,
         @Param("noteIds") List<Integer> noteIds
     );
 

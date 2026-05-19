@@ -6,5 +6,5 @@ import java.util.Set;
 
 @Transactional
 public interface CollectionNoteService {
-    Set<Integer> findUserCollectedNoteIds(Integer userId, List<Integer> noteIds);
+    Set<Integer> findUserCollectedNoteIds(Long userId, List<Integer> noteIds);
 }

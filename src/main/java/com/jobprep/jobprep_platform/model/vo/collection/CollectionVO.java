@@ -6,7 +6,7 @@ public class CollectionVO {
     private Integer collectionId;
     private String name;
     private String description;
-
+    // check if note is already collected
     private NoteStatus noteStatus;
     @Data
     public static class NoteStatus {
