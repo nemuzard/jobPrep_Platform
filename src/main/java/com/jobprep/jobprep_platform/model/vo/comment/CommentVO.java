@@ -13,8 +13,9 @@ public class CommentVO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private SimpleAuthorVO author;
-    private UserActionVO userAction;
+    private UserActionVO userActions;
     private List<CommentVO> replies;
+    
     @Data
     public static class SimpleAuthorVO {
         private Long userId;

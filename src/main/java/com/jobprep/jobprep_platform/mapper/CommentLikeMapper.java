@@ -19,7 +19,7 @@ public interface CommentLikeMapper {
      * @param commentIds
      * @return
      */
-    Set<Integer> findLikedCommentIds(@Param("userId") Long userId,
+    Set<Integer> findUserLikedCommentIds(@Param("userId") Long userId,
             @Param("commentIds") List<Integer> commentIds);
     
     @Select("SELECT COUNT(*)>0 FROM comment_like"+

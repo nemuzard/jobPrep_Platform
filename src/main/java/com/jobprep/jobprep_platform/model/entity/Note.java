@@ -10,7 +10,7 @@ public class Note {
     
    
     private Integer noteId;
-    private Integer authorId;
+    private Long authorId;
     private Integer questionId;
     private String content;
     private Integer likeCount;

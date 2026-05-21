@@ -14,7 +14,7 @@ public class UpdateCollectionBody {
     @Min(value = 1, message = "note id must be greater than 0")
     private Integer noteId;
 
-    private UpdateItem[] items;
+    private UpdateItem[] collections;
     @Data
     public static class UpdateItem {
         @Min(value = 1, message = "collection id must be greater than 0")

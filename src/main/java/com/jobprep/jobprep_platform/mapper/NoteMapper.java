@@ -37,7 +37,7 @@ public interface NoteMapper {
     int unlikeNote(@Param("noteId") Integer noteId);
 
     int collectNote(@Param("noteId")Integer noteId);
-    int uncollectNote(@Param("noteId") Integer noteId);
+    int unCollectNote(@Param("noteId") Integer noteId);
 
     int deleteById(@Param("noteId")Integer noteId);
     // note submission rank

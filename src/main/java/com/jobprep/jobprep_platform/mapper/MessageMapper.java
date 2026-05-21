@@ -31,11 +31,14 @@ public interface MessageMapper {
      */
     int countByParams(@Param("userId") Long userId, @Param("params") MessageQueryParams params);
 
-    int makeAsRead(@Param("messageId")Integer messageId, 
+    int markAsRead(@Param("messageId")Integer messageId, 
                     @Param("userId") Long userId);
 
+    int markAsReadBatch(@Param("messageIds") List<Integer> messageIds,@Param("userId") Long userId);
     int markAllAsRead(@Param("userId") Long userId);
+    int deleteMessage(@Param("messageId") Integer messageId,@Param("userId")Long userId);
 
+    int countUnread(@Param("userId")Long userId);
     List<UnreadCountByType> countUnreadByType(@Param("userId") Long userId);
 
 

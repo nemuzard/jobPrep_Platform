@@ -23,6 +23,8 @@ public class MessageVO {
     @Data
     public static class Target{
         private Integer targetId;
+        private Integer targetType;
+        private  QuestionSummary questionSummary;
     }
     @Data
     public static class QuestionSummary{
