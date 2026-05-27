@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobprep.jobprep_platform.mapper.QuestionListItemMapper">
+
+    <resultMap id="questionListItemVOMap" type="com.jobprep.jobprep_platform.model.vo.questionListItem.QuestionListItemVO">
+        <id property="questionListId" column="question_list_id"/>
+        <result property="rank" column="rank"/>
+        <association property="question" javaType="com.jobprep.jobprep_platform.model.vo.question.BaseQuestionVO">
+            <id property="questionId" column="question_id"/>
+            <result property="categoryId" column="category_id"/>
+            <result property="catogoryId" column="category_id"/>
+            <result property="title" column="title"/>
+            <result property="difficulty" column="difficulty"/>
+            <result property="examPoint" column="exam_point"/>
+            <result property="viewCount" column="view_count"/>
+        </association>
+    </resultMap>
+
+    <sql id="questionListItemSelect">
+        SELECT
+            qli.question_list_id,
+            qli.rank,
+            q.question_id,
+            q.category_id,
+            q.title,
+            q.difficulty,
+            q.exam_point,
+            q.view_count
+        FROM question_list_item qli
+        INNER JOIN question q ON q.question_id = qli.question_id
+    </sql>
+
+    <insert id="insert" parameterType="com.jobprep.jobprep_platform.model.entity.QuestionListItem">
+        INSERT INTO question_list_item (
+            question_list_id,
+            question_id,
+            rank
+        ) VALUES (
+            #{questionListId},
+            #{questionId},
+            #{rank}
+        )
+    </insert>
+
+    <select id="findByQuestionListId" resultMap="questionListItemVOMap">
+        <include refid="questionListItemSelect"/>
+        WHERE qli.question_list_id = #{questionListId}
+        ORDER BY qli.rank ASC, qli.question_id ASC
+    </select>
+
+    <select id="countByQuestionListId" resultType="integer">
+        SELECT COUNT(*)
+        FROM question_list_item
+        WHERE question_list_id = #{questionListId}
+    </select>
+
+    <select id="findByQuestionListIdPage" resultMap="questionListItemVOMap">
+        <include refid="questionListItemSelect"/>
+        WHERE qli.question_list_id = #{questionListId}
+        ORDER BY qli.rank ASC, qli.question_id ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <delete id="deleteByQuestionListId">
+        DELETE FROM question_list_item
+        WHERE question_list_id = #{questionListId}
+    </delete>
+
+    <delete id="deleteByQuestionListIdAndQuestionId">
+        DELETE FROM question_list_item
+        WHERE question_list_id = #{questionListId}
+          AND question_id = #{questionId}
+    </delete>
+
+    <select id="nextRank" resultType="integer">
+        SELECT COALESCE(MAX(rank), 0) + 1
+        FROM question_list_item
+        WHERE question_list_id = #{questionListId}
+    </select>
+
+    <update id="updateQuestionRank" parameterType="com.jobprep.jobprep_platform.model.entity.QuestionListItem">
+        UPDATE question_list_item
+        SET rank = #{rank},
+            updated_at = NOW()
+        WHERE question_list_id = #{questionListId}
+          AND question_id = #{questionId}
+    </update>
+
+</mapper>

@@ -53,13 +53,13 @@ public interface NoteService {
      * submit note rank data for the current user, which will be used to generate the note heat map and note rank list
      * @return
      */
-    ApiResponse<List<NoteHeatMapItem>> submitNoteRank();
+    ApiResponse<List<NoteRankListItem>> submitNoteRank();
     
     /**
      * submit note heat map data 
      * @return
      */
-    ApiResponse<List<NoteRankListItem>> submitNoteHeatMap();
+    ApiResponse<List<NoteHeatMapItem>> submitNoteHeatMap();
 
     ApiResponse<Top3Count> submitNoteTop3Count();
 }

@@ -37,7 +37,7 @@ public class MessageServiceImpl implements MessageService{
     public Integer createMessage(MessageDTO messageDTO){
         try{
             Message message = new Message();
-            BeanUtils.copyProperties(message, messageDTO);
+            BeanUtils.copyProperties(messageDTO, message);
             if (messageDTO.getContent()==null){
                 message.setContent("");
             }
@@ -62,15 +62,19 @@ public class MessageServiceImpl implements MessageService{
             BeanUtils.copyProperties(message, messageVO);
             // sender info 
             MessageVO.Sender sender = new MessageVO.Sender();
+            User senderUser = userMap.get(message.getSenderId());
             sender.setUserId(message.getSenderId());
-            sender.setUsername(userMap.get(message.getSenderId()).getUsername());
-            sender.setAvatarUrl(userMap.get(message.getSenderId()).getAvatarUrl());
+            if (senderUser != null) {
+                sender.setUsername(senderUser.getUsername());
+                sender.setAvatarUrl(senderUser.getAvatarUrl());
+            }
             messageVO.setSender(sender);
             if(!Objects.equals(message.getType(),MessageType.SYSTEM)){
                 MessageVO.Target target = new MessageVO.Target();
                 target.setTargetId(message.getTargetId());
                 target.setTargetType(message.getTargetType());
                 //Todo - get comment/like info if needed
+                messageVO.setTarget(target);
             }
             return messageVO;
         }).toList();

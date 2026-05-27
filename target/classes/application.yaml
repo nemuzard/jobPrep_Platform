@@ -23,8 +23,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: projecttestadmin321@gmail.com
-    password: jtqjotxpzjcxgqgf
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
     default-encoding: UTF-8
     properties:
       "[mail.smtp.auth]": true

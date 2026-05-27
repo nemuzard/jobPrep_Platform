@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobprep.jobprep_platform.mapper.NoteMapper">
+
+    <sql id="noteColumns">
+        n.note_id,
+        n.author_id,
+        n.question_id,
+        n.content,
+        n.like_count,
+        n.comment_count,
+        n.collect_count,
+        n.created_at,
+        n.updated_at
+    </sql>
+
+    <sql id="noteWhere">
+        <where>
+            <if test="params.questionId != null">
+                AND n.question_id = #{params.questionId}
+            </if>
+            <if test="params.authorId != null">
+                AND n.author_id = #{params.authorId}
+            </if>
+            <if test="params.collectionId != null">
+                AND cn.collection_id = #{params.collectionId}
+            </if>
+            <if test="params.recentDays != null">
+                AND n.created_at &gt;= DATE_SUB(NOW(), INTERVAL #{params.recentDays} DAY)
+            </if>
+            <if test="params.keyword != null and params.keyword != ''">
+                AND (
+                    n.content LIKE CONCAT('%', #{params.keyword}, '%')
+                    OR EXISTS (
+                        SELECT 1
+                        FROM question q
+                        WHERE q.question_id = n.question_id
+                          AND q.title LIKE CONCAT('%', #{params.keyword}, '%')
+                    )
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="countNotes" resultType="integer">
+        SELECT COUNT(DISTINCT n.note_id)
+        FROM note n
+        <if test="params.collectionId != null">
+            INNER JOIN collection_note cn ON cn.note_id = n.note_id
+        </if>
+        <include refid="noteWhere"/>
+    </select>
+
+    <select id="findById" resultType="com.jobprep.jobprep_platform.model.entity.Note">
+        SELECT
+            <include refid="noteColumns"/>
+        FROM note n
+        WHERE n.note_id = #{noteId}
+    </select>
+
+    <select id="findByQueryParams" resultType="com.jobprep.jobprep_platform.model.entity.Note">
+        SELECT DISTINCT
+            <include refid="noteColumns"/>
+        FROM note n
+        <if test="params.collectionId != null">
+            INNER JOIN collection_note cn ON cn.note_id = n.note_id
+        </if>
+        <include refid="noteWhere"/>
+        ORDER BY
+        <choose>
+            <when test="params.sort == 'create'">n.created_at</when>
+            <otherwise>n.created_at</otherwise>
+        </choose>
+        <choose>
+            <when test="params.order == 'asc'">ASC</when>
+            <otherwise>DESC</otherwise>
+        </choose>
+        , n.note_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="findByAuthorAndQuestionId" resultType="com.jobprep.jobprep_platform.model.entity.Note">
+        SELECT
+            <include refid="noteColumns"/>
+        FROM note n
+        WHERE n.author_id = #{authorId}
+          AND n.question_id = #{questionId}
+        LIMIT 1
+    </select>
+
+    <select id="findByAuthorId" resultType="com.jobprep.jobprep_platform.model.entity.Note">
+        SELECT
+            <include refid="noteColumns"/>
+        FROM note n
+        WHERE n.author_id = #{authorId}
+        ORDER BY n.created_at DESC, n.note_id DESC
+    </select>
+
+    <select id="filterFinishedQuestionIdsByUser" resultType="integer">
+        SELECT DISTINCT question_id
+        FROM note
+        WHERE author_id = #{authorId}
+        <choose>
+            <when test="questionIds != null and questionIds.size > 0">
+                AND question_id IN
+                <foreach collection="questionIds" item="questionId" open="(" separator="," close=")">
+                    #{questionId}
+                </foreach>
+            </when>
+            <otherwise>
+                AND 1 = 0
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="insert" parameterType="com.jobprep.jobprep_platform.model.entity.Note" useGeneratedKeys="true" keyProperty="noteId">
+        INSERT INTO note (
+            author_id,
+            question_id,
+            content,
+            search_vector
+        ) VALUES (
+            #{authorId},
+            #{questionId},
+            #{content},
+            #{content}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.jobprep.jobprep_platform.model.entity.Note">
+        UPDATE note
+        <set>
+            <if test="content != null">content = #{content}, search_vector = #{content},</if>
+            updated_at = NOW()
+        </set>
+        WHERE note_id = #{noteId}
+    </update>
+
+    <update id="likeNote">
+        UPDATE note
+        SET like_count = like_count + 1,
+            updated_at = NOW()
+        WHERE note_id = #{noteId}
+    </update>
+
+    <update id="unlikeNote">
+        UPDATE note
+        SET like_count = GREATEST(like_count - 1, 0),
+            updated_at = NOW()
+        WHERE note_id = #{noteId}
+    </update>
+
+    <update id="collectNote">
+        UPDATE note
+        SET collect_count = collect_count + 1,
+            updated_at = NOW()
+        WHERE note_id = #{noteId}
+    </update>
+
+    <update id="unCollectNote">
+        UPDATE note
+        SET collect_count = GREATEST(collect_count - 1, 0),
+            updated_at = NOW()
+        WHERE note_id = #{noteId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM note
+        WHERE note_id = #{noteId}
+    </delete>
+
+    <select id="submitNoteRank" resultType="com.jobprep.jobprep_platform.model.vo.note.NoteRankListItem">
+        SELECT
+            u.user_id,
+            u.username,
+            u.avatar_url,
+            ranked.note_count,
+            ranked.rank
+        FROM (
+            SELECT
+                author_id,
+                COUNT(*) AS note_count,
+                RANK() OVER (ORDER BY COUNT(*) DESC) AS rank
+            FROM note
+            GROUP BY author_id
+        ) ranked
+        INNER JOIN user u ON u.user_id = ranked.author_id
+        ORDER BY ranked.rank ASC, ranked.note_count DESC
+        LIMIT 10
+    </select>
+
+    <select id="submitNoteHeatMap" resultType="com.jobprep.jobprep_platform.model.vo.note.NoteHeatMapItem">
+        SELECT
+            DATE(created_at) AS date,
+            COUNT(*) AS count
+        FROM note
+        WHERE author_id = #{authorId}
+        GROUP BY DATE(created_at)
+        ORDER BY date ASC
+    </select>
+
+    <select id="submitNoteTop3Count" resultType="com.jobprep.jobprep_platform.model.vo.note.Top3Count">
+        SELECT
+            (
+                SELECT COUNT(*)
+                FROM (
+                    SELECT
+                        author_id,
+                        RANK() OVER (ORDER BY COUNT(*) DESC) AS rank_num
+                    FROM note
+                    WHERE created_at &gt;= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                    GROUP BY author_id
+                ) this_month
+                WHERE this_month.author_id = #{authorId}
+                  AND this_month.rank_num &lt;= 3
+            ) AS this_month_top3_count,
+            (
+                SELECT COUNT(*)
+                FROM (
+                    SELECT
+                        author_id,
+                        RANK() OVER (ORDER BY COUNT(*) DESC) AS rank_num
+                    FROM note
+                    WHERE created_at &gt;= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+                      AND created_at &lt; DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                    GROUP BY author_id
+                ) last_month
+                WHERE last_month.author_id = #{authorId}
+                  AND last_month.rank_num &lt;= 3
+            ) AS last_month_top3_count
+    </select>
+
+    <select id="getTodayNoteCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM note
+        WHERE DATE(created_at) = CURDATE()
+    </select>
+
+    <select id="getTodaySubmitNoteUserCount" resultType="integer">
+        SELECT COUNT(DISTINCT author_id)
+        FROM note
+        WHERE DATE(created_at) = CURDATE()
+    </select>
+
+    <select id="getTotalNoteCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM note
+    </select>
+
+    <update id="incrementCommentCount">
+        UPDATE note
+        SET comment_count = comment_count + 1,
+            updated_at = NOW()
+        WHERE note_id = #{noteId}
+    </update>
+
+    <update id="decrementCommentCount">
+        UPDATE note
+        SET comment_count = GREATEST(comment_count - 1, 0),
+            updated_at = NOW()
+        WHERE note_id = #{noteId}
+    </update>
+
+    <select id="searchNotes" resultType="com.jobprep.jobprep_platform.model.entity.Note">
+        SELECT
+            <include refid="noteColumns"/>
+        FROM note n
+        WHERE n.content LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY n.created_at DESC, n.note_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="searchNotesByTag" resultType="com.jobprep.jobprep_platform.model.entity.Note">
+        SELECT DISTINCT
+            <include refid="noteColumns"/>
+        FROM note n
+        INNER JOIN note_tag nt ON nt.note_id = n.note_id
+        INNER JOIN tag t ON t.tag_id = nt.tag_id
+        WHERE n.content LIKE CONCAT('%', #{keyword}, '%')
+          AND t.name = #{tag}
+        ORDER BY n.created_at DESC, n.note_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+</mapper>

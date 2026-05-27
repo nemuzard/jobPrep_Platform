@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobprep.jobprep_platform.mapper.QuestionMapper">
+
+    <sql id="questionColumns">
+        question_id,
+        category_id,
+        title,
+        difficulty,
+        exam_point,
+        view_count,
+        created_at,
+        updated_at
+    </sql>
+
+    <sql id="questionWhere">
+        <where>
+            <if test="queryParam.categoryId != null">
+                category_id = #{queryParam.categoryId}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insert" parameterType="com.jobprep.jobprep_platform.model.entity.Question" useGeneratedKeys="true" keyProperty="questionId">
+        INSERT INTO question (
+            category_id,
+            title,
+            difficulty,
+            exam_point
+        ) VALUES (
+            #{categoryId},
+            #{title},
+            #{difficulty},
+            #{examPoint}
+        )
+    </insert>
+
+    <select id="findById" resultType="com.jobprep.jobprep_platform.model.entity.Question">
+        SELECT
+            <include refid="questionColumns"/>
+        FROM question
+        WHERE question_id = #{questionId}
+    </select>
+
+    <select id="findByIdBatch" resultType="com.jobprep.jobprep_platform.model.entity.Question">
+        SELECT
+            <include refid="questionColumns"/>
+        FROM question
+        <where>
+            <choose>
+                <when test="questionIds != null and questionIds.size > 0">
+                    question_id IN
+                    <foreach collection="questionIds" item="questionId" open="(" separator="," close=")">
+                        #{questionId}
+                    </foreach>
+                </when>
+                <otherwise>
+                    1 = 0
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="findByQueryParam" resultType="com.jobprep.jobprep_platform.model.entity.Question">
+        SELECT
+            <include refid="questionColumns"/>
+        FROM question
+        <include refid="questionWhere"/>
+        ORDER BY
+        <choose>
+            <when test="queryParam.sort == 'view'">view_count</when>
+            <when test="queryParam.sort == 'difficulty'">difficulty</when>
+            <otherwise>question_id</otherwise>
+        </choose>
+        <choose>
+            <when test="queryParam.order == 'asc'">ASC</when>
+            <otherwise>DESC</otherwise>
+        </choose>
+        , question_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="findByTitle" resultType="com.jobprep.jobprep_platform.model.entity.Question">
+        SELECT
+            <include refid="questionColumns"/>
+        FROM question
+        WHERE title = #{title}
+        LIMIT 1
+    </select>
+
+    <select id="findByKeyword" resultType="com.jobprep.jobprep_platform.model.entity.Question">
+        SELECT
+            <include refid="questionColumns"/>
+        FROM question
+        WHERE title LIKE CONCAT('%', #{keyword}, '%')
+           OR exam_point LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY view_count DESC, question_id DESC
+        LIMIT 20
+    </select>
+
+    <update id="update">
+        UPDATE question
+        <set>
+            <if test="question.categoryId != null">category_id = #{question.categoryId},</if>
+            <if test="question.title != null">title = #{question.title},</if>
+            <if test="question.difficulty != null">difficulty = #{question.difficulty},</if>
+            <if test="question.examPoint != null">exam_point = #{question.examPoint},</if>
+            updated_at = NOW()
+        </set>
+        WHERE question_id = #{question.questionId}
+    </update>
+
+    <update id="incrementViewCount">
+        UPDATE question
+        SET view_count = view_count + 1,
+            updated_at = NOW()
+        WHERE question_id = #{questionId}
+    </update>
+
+    <select id="countByQueryParam" resultType="integer">
+        SELECT COUNT(*)
+        FROM question
+        <include refid="questionWhere"/>
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM question
+        WHERE question_id = #{questionId}
+    </delete>
+
+    <delete id="deleteByCategoryId">
+        DELETE FROM question
+        WHERE category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteByCategoryIdBatch">
+        DELETE FROM question
+        <where>
+            <choose>
+                <when test="categoryIds != null and categoryIds.size > 0">
+                    category_id IN
+                    <foreach collection="categoryIds" item="categoryId" open="(" separator="," close=")">
+                        #{categoryId}
+                    </foreach>
+                </when>
+                <otherwise>
+                    1 = 0
+                </otherwise>
+            </choose>
+        </where>
+    </delete>
+
+</mapper>

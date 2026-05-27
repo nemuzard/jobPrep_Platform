@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class CreateNoteVO {
     // id of the created note
-    private Integer id;
+    private Integer noteId;
 }

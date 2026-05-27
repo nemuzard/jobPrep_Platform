@@ -2,8 +2,7 @@ package com.jobprep.jobprep_platform.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import io.lettuce.core.dynamic.annotation.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Param;
 import java.util.List;
 import java.util.Set;
 import com.jobprep.jobprep_platform.model.entity.CommentLike;
@@ -22,8 +21,6 @@ public interface CommentLikeMapper {
     Set<Integer> findUserLikedCommentIds(@Param("userId") Long userId,
             @Param("commentIds") List<Integer> commentIds);
     
-    @Select("SELECT COUNT(*)>0 FROM comment_like"+
-            "WHERE user_id = #{userId} AND comment_id = #{commentId}")
     boolean checkIsliked(@Param("userId") Long userId, @Param("commentId") Integer commentId);
 
 }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobprep.jobprep_platform.mapper.CommentLikeMapper">
+
+    <insert id="insert" parameterType="com.jobprep.jobprep_platform.model.entity.CommentLike" useGeneratedKeys="true" keyProperty="commentLikeId">
+        INSERT IGNORE INTO comment_like (
+            comment_id,
+            user_id
+        ) VALUES (
+            #{commentId},
+            #{userId}
+        )
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM comment_like
+        WHERE comment_id = #{commentId}
+          AND user_id = #{userId}
+    </delete>
+
+    <select id="findUserLikedCommentIds" resultType="integer">
+        SELECT comment_id
+        FROM comment_like
+        WHERE user_id = #{userId}
+        <choose>
+            <when test="commentIds != null and commentIds.size > 0">
+                AND comment_id IN
+                <foreach collection="commentIds" item="commentId" open="(" separator="," close=")">
+                    #{commentId}
+                </foreach>
+            </when>
+            <otherwise>
+                AND 1 = 0
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="checkIsliked" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM comment_like
+        WHERE user_id = #{userId}
+          AND comment_id = #{commentId}
+    </select>
+
+</mapper>

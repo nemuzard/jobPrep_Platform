@@ -34,7 +34,7 @@ public interface CategoryMapper {
      * @param categoryId
      * @return
      */
-    Category findById(Integer categoryId);
+    Category findById(@Param("categoryId") Integer categoryId);
 
     List<Category> findByIdBatch(@Param("categoryIds") List<Integer> categoryIds);
 
@@ -43,16 +43,16 @@ public interface CategoryMapper {
      * @param categoryId the id used for filtering
      * @return a list of matching categories 
      */
-    List<Category> findByIdOrParentId(Integer categoryId);
+    List<Category> findByIdOrParentId(@Param("categoryId") Integer categoryId);
 
     // delete
-    int deleteById(Integer categoryId);
+    int deleteById(@Param("categoryId") Integer categoryId);
     int deleteByIdBatch(@Param("categoryIds") List<Integer> categoryIds);
 
 
     // update 
     int update(Category category);
     // find by name
-    Category findByName(String categoryName);
+    Category findByName(@Param("categoryName") String categoryName);
     
 }

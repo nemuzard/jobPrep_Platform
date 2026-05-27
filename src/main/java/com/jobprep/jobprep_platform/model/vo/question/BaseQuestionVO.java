@@ -9,6 +9,7 @@ public class BaseQuestionVO {
      * properties 
      */
     private Integer questionId;
+    private Integer categoryId;
     private Integer catogoryId;
     private String title;
     private Integer difficulty;

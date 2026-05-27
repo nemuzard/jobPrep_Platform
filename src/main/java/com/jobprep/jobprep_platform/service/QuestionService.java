@@ -35,7 +35,7 @@ public interface QuestionService {
     ApiResponse<CreateQuestionVO> createQuestion(CreateQuestionBody createQuestionBody);
 
 
-    ApiResponse<EmptyVO> creationQuestionBatch(CreateQuestionBatchBody createQuestionBatchBody);
+    ApiResponse<EmptyVO> createQuestionBatch(CreateQuestionBatchBody createQuestionBatchBody);
 
     ApiResponse<EmptyVO> updateQuestion(Integer question, UpdateQuestionBody updateQuestionBody);
 

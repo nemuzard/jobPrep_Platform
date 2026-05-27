@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.jobprep.jobprep_platform.model.base.ApiResponse;
+import com.jobprep.jobprep_platform.model.base.EmptyVO;
 import com.jobprep.jobprep_platform.model.dto.user.LoginRequest;
 import com.jobprep.jobprep_platform.model.dto.user.RegisterRequest;
 import com.jobprep.jobprep_platform.model.dto.user.UpdateUserRequest;
@@ -71,9 +72,14 @@ public class UserController {
      * auto login
      * @return
      */
-    @PostMapping("/whoami")
+    @PostMapping({"/whoami", "/users/whoami"})
     public ApiResponse<LoginUserVO> whoami(){
         return userService.whoami();
+    }
+
+    @PostMapping("/users/logout")
+    public ApiResponse<EmptyVO> logout(){
+        return ApiResponse.success();
     }
 
     /**

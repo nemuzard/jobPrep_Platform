@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobprep.jobprep_platform.mapper.MessageMapper">
+
+    <sql id="messageColumns">
+        message_id,
+        receiver_id,
+        sender_id,
+        type,
+        target_id,
+        NULL AS target_type,
+        content,
+        is_read,
+        created_at,
+        updated_at
+    </sql>
+
+    <insert id="insert" parameterType="com.jobprep.jobprep_platform.model.entity.Message" useGeneratedKeys="true" keyProperty="messageId">
+        INSERT INTO message (
+            receiver_id,
+            sender_id,
+            type,
+            target_id,
+            content,
+            is_read
+        ) VALUES (
+            #{receiverId},
+            #{senderId},
+            #{type},
+            #{targetId},
+            #{content},
+            #{isRead}
+        )
+    </insert>
+
+    <select id="selectByUserId" resultType="com.jobprep.jobprep_platform.model.entity.Message">
+        SELECT
+            <include refid="messageColumns"/>
+        FROM message
+        WHERE receiver_id = #{userId}
+        ORDER BY created_at DESC, message_id DESC
+    </select>
+
+    <sql id="messageWhere">
+        <where>
+            receiver_id = #{userId}
+            <if test="params.type != null and params.type != ''">
+                AND type = #{params.type}
+            </if>
+            <if test="params.isRead != null">
+                AND is_read = #{params.isRead}
+            </if>
+            <if test="params.startTime != null">
+                AND created_at &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null">
+                AND created_at &lt;= #{params.endTime}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectByParams" resultType="com.jobprep.jobprep_platform.model.entity.Message">
+        SELECT
+            <include refid="messageColumns"/>
+        FROM message
+        <include refid="messageWhere"/>
+        ORDER BY
+        <choose>
+            <when test="params.sortField == 'type'">type</when>
+            <when test="params.sortField == 'is_read'">is_read</when>
+            <otherwise>created_at</otherwise>
+        </choose>
+        <choose>
+            <when test="params.sortOrder == 'asc'">ASC</when>
+            <otherwise>DESC</otherwise>
+        </choose>
+        , message_id DESC
+        LIMIT #{params.pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countByParams" resultType="integer">
+        SELECT COUNT(*)
+        FROM message
+        <include refid="messageWhere"/>
+    </select>
+
+    <update id="markAsRead">
+        UPDATE message
+        SET is_read = 1,
+            updated_at = NOW()
+        WHERE message_id = #{messageId}
+          AND receiver_id = #{userId}
+    </update>
+
+    <update id="markAsReadBatch">
+        UPDATE message
+        SET is_read = 1,
+            updated_at = NOW()
+        WHERE receiver_id = #{userId}
+        <choose>
+            <when test="messageIds != null and messageIds.size > 0">
+                AND message_id IN
+                <foreach collection="messageIds" item="messageId" open="(" separator="," close=")">
+                    #{messageId}
+                </foreach>
+            </when>
+            <otherwise>
+                AND 1 = 0
+            </otherwise>
+        </choose>
+    </update>
+
+    <update id="markAllAsRead">
+        UPDATE message
+        SET is_read = 1,
+            updated_at = NOW()
+        WHERE receiver_id = #{userId}
+    </update>
+
+    <delete id="deleteMessage">
+        DELETE FROM message
+        WHERE message_id = #{messageId}
+          AND receiver_id = #{userId}
+    </delete>
+
+    <select id="countUnread" resultType="integer">
+        SELECT COUNT(*)
+        FROM message
+        WHERE receiver_id = #{userId}
+          AND is_read = 0
+    </select>
+
+    <select id="countUnreadByType" resultType="com.jobprep.jobprep_platform.model.vo.message.UnreadCountByType">
+        SELECT type, COUNT(*) AS count
+        FROM message
+        WHERE receiver_id = #{userId}
+          AND is_read = 0
+        GROUP BY type
+    </select>
+
+</mapper>

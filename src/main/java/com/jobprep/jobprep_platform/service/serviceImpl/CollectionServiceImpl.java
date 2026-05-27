@@ -134,6 +134,7 @@ public class CollectionServiceImpl implements CollectionService {
                     }
                     CollectionNote collectionNote = new CollectionNote();
                     collectionNote.setCollectionId(collectionId);
+                    collectionNote.setNoteId(noteId);
                     collectionNoteMapper.insert(collectionNote);
                 }catch (Exception e){
                     return ApiResponseUtil.error("failed");

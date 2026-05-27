@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobprep.jobprep_platform.mapper.CategoryMapper">
+
+    <sql id="categoryColumns">
+        category_id,
+        name,
+        parent_category_id,
+        created_at,
+        updated_at
+    </sql>
+
+    <insert id="insert" parameterType="com.jobprep.jobprep_platform.model.entity.Category" useGeneratedKeys="true" keyProperty="categoryId">
+        INSERT INTO category (
+            name,
+            parent_category_id
+        ) VALUES (
+            #{name},
+            #{parentCategoryId}
+        )
+    </insert>
+
+    <insert id="insertBatch">
+        INSERT INTO category (
+            name,
+            parent_category_id
+        ) VALUES
+        <foreach collection="categories" item="category" separator=",">
+            (
+                #{category.name},
+                #{category.parentCategoryId}
+            )
+        </foreach>
+    </insert>
+
+    <select id="categoryList" resultType="com.jobprep.jobprep_platform.model.entity.Category">
+        SELECT
+            <include refid="categoryColumns"/>
+        FROM category
+        ORDER BY parent_category_id ASC, category_id ASC
+    </select>
+
+    <select id="findById" resultType="com.jobprep.jobprep_platform.model.entity.Category">
+        SELECT
+            <include refid="categoryColumns"/>
+        FROM category
+        WHERE category_id = #{categoryId}
+    </select>
+
+    <select id="findByIdBatch" resultType="com.jobprep.jobprep_platform.model.entity.Category">
+        SELECT
+            <include refid="categoryColumns"/>
+        FROM category
+        <where>
+            <if test="categoryIds != null and categoryIds.size > 0">
+                category_id IN
+                <foreach collection="categoryIds" item="categoryId" open="(" separator="," close=")">
+                    #{categoryId}
+                </foreach>
+            </if>
+            <if test="categoryIds == null or categoryIds.size == 0">
+                1 = 0
+            </if>
+        </where>
+    </select>
+
+    <select id="findByIdOrParentId" resultType="com.jobprep.jobprep_platform.model.entity.Category">
+        SELECT
+            <include refid="categoryColumns"/>
+        FROM category
+        WHERE category_id = #{categoryId}
+           OR parent_category_id = #{categoryId}
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM category
+        WHERE category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteByIdBatch">
+        DELETE FROM category
+        <where>
+            <if test="categoryIds != null and categoryIds.size > 0">
+                category_id IN
+                <foreach collection="categoryIds" item="categoryId" open="(" separator="," close=")">
+                    #{categoryId}
+                </foreach>
+            </if>
+            <if test="categoryIds == null or categoryIds.size == 0">
+                1 = 0
+            </if>
+        </where>
+    </delete>
+
+    <update id="update" parameterType="com.jobprep.jobprep_platform.model.entity.Category">
+        UPDATE category
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="parentCategoryId != null">parent_category_id = #{parentCategoryId},</if>
+            updated_at = NOW()
+        </set>
+        WHERE category_id = #{categoryId}
+    </update>
+
+    <select id="findByName" resultType="com.jobprep.jobprep_platform.model.entity.Category">
+        SELECT
+            <include refid="categoryColumns"/>
+        FROM category
+        WHERE name = #{categoryName}
+        LIMIT 1
+    </select>
+
+</mapper>

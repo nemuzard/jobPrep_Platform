@@ -1,4 +1,4 @@
-package com.jobprep.aspect;
+package com.jobprep.jobprep_platform.aspect;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

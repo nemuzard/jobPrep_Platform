@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobprep.jobprep_platform.mapper.StatisticMapper">
+
+    <sql id="statisticColumns">
+        id,
+        login_count,
+        register_count,
+        total_register_count,
+        note_count,
+        submit_note_count,
+        total_note_count,
+        date
+    </sql>
+
+    <insert id="insert" parameterType="com.jobprep.jobprep_platform.model.entity.Statistic" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO statistic (
+            login_count,
+            register_count,
+            total_register_count,
+            note_count,
+            submit_note_count,
+            total_note_count,
+            date
+        ) VALUES (
+            #{loginCount},
+            #{registerCount},
+            #{totalRegisterCount},
+            #{noteCount},
+            #{submitNoteCount},
+            #{totalNoteCount},
+            #{date}
+        )
+    </insert>
+
+    <select id="countStatistic" resultType="integer">
+        SELECT COUNT(*)
+        FROM statistic
+    </select>
+
+    <select id="findByPage" resultType="com.jobprep.jobprep_platform.model.entity.Statistic">
+        SELECT
+            <include refid="statisticColumns"/>
+        FROM statistic
+        ORDER BY date DESC, id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+</mapper>

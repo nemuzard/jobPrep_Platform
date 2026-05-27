@@ -21,11 +21,11 @@ public interface QuestionListItemMapper {
                                                 @Param("limit") Integer limit,
                                                 @Param("offset") Integer offset);
 
-    int deleteByQuestionListId(Integer questionListId);
+    int deleteByQuestionListId(@Param("questionListId") Integer questionListId);
 
     int deleteByQuestionListIdAndQuestionId(@Param("questionListId") Integer questionListId,@Param("questionId")Integer questionId);
 
-    int nextRank(Integer questionListId);
+    int nextRank(@Param("questionListId") Integer questionListId);
     
     int updateQuestionRank(QuestionListItem questionListItem);
 }

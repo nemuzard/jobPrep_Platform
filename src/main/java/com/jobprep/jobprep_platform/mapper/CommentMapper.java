@@ -12,21 +12,21 @@ public interface CommentMapper {
     
     void insert(Comment comment);
     void update(Comment comment);
-    void deleteById(Integer commentId);
+    void deleteById(@Param("commentId") Integer commentId);
     
     /**
      * find comment based on id 
      * @param commentId
      * @return comment instance
      */
-    Comment findById(Integer commentId);
+    Comment findById(@Param("commentId") Integer commentId);
 
     /**
      * find comment list based on note id 
      * @param nodeId
      * @return
      */
-    List<Comment> findByNoteId(Integer nodeId);
+    List<Comment> findByNoteId(@Param("noteId") Integer nodeId);
 
     /**
      * find comment list
@@ -50,10 +50,10 @@ public interface CommentMapper {
     int countByQueryParam(@Param("params") CommentQueryParams params);
 
     
-    void incrementLikeCount(Integer commentId);
-    void decrementLikeCount(Integer commentId);
-    void incrementReplyCount(Integer commentId);
-    void decrementReplyCount(Integer commentId);
+    void incrementLikeCount(@Param("commentId") Integer commentId);
+    void decrementLikeCount(@Param("commentId") Integer commentId);
+    void incrementReplyCount(@Param("commentId") Integer commentId);
+    void decrementReplyCount(@Param("commentId") Integer commentId);
 
 
 }

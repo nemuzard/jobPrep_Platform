@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobprep.jobprep_platform.mapper.NoteLikeMapper">
+
+    <insert id="insert" parameterType="com.jobprep.jobprep_platform.model.entity.NoteLike">
+        INSERT IGNORE INTO note_like (
+            note_id,
+            user_id,
+            created_at
+        ) VALUES (
+            #{noteId},
+            #{userId},
+            #{createdAt}
+        )
+    </insert>
+
+    <delete id="delete" parameterType="com.jobprep.jobprep_platform.model.entity.NoteLike">
+        DELETE FROM note_like
+        WHERE note_id = #{noteId}
+          AND user_id = #{userId}
+    </delete>
+
+    <select id="findUserLikedNoteIds" resultType="integer">
+        SELECT note_id
+        FROM note_like
+        WHERE user_id = #{userId}
+        <choose>
+            <when test="noteIds != null and noteIds.size > 0">
+                AND note_id IN
+                <foreach collection="noteIds" item="noteId" open="(" separator="," close=")">
+                    #{noteId}
+                </foreach>
+            </when>
+            <otherwise>
+                AND 1 = 0
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findByUserIdAndNoteId" resultType="com.jobprep.jobprep_platform.model.entity.NoteLike">
+        SELECT
+            note_id,
+            user_id,
+            created_at,
+            updated_at
+        FROM note_like
+        WHERE user_id = #{userId}
+          AND note_id = #{noteId}
+    </select>
+
+</mapper>

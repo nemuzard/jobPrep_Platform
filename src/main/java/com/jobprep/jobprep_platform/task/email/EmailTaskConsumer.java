@@ -2,6 +2,7 @@ package com.jobprep.jobprep_platform.task.email;
 
 import java.util.concurrent.TimeUnit;
 import com.jobprep.jobprep_platform.enums.redisKey.RedisKey;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 
 @Component
+@ConditionalOnProperty(name = "app.scheduling.enabled", havingValue = "true", matchIfMissing = true)
 public class EmailTaskConsumer {
     @Autowired
     private JavaMailSender mailSender;

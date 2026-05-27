@@ -20,6 +20,14 @@ public class PaginationApiResponse<T> extends ApiResponse<T> {
      * 
      * @return
      */
+    public Pagination getPagination(){
+        return pagination;
+    }
+
+    /**
+     * @deprecated use {@link #getPagination()}.
+     */
+    @Deprecated
     public Pagination gePagination(){
         return pagination;
     }

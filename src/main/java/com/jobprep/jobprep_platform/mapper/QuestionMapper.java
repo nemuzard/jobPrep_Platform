@@ -35,8 +35,8 @@ public interface QuestionMapper {
     // count how many questions match some query conditions
     int countByQueryParam(@Param("queryParam") QuestionQueryParam queryParam);
     
-    int deleteById(Integer questionId);
-    int deleteByCategoryId(Integer categoryId);
+    int deleteById(@Param("questionId") Integer questionId);
+    int deleteByCategoryId(@Param("categoryId") Integer categoryId);
 
     int deleteByCategoryIdBatch(@Param("categoryIds") List<Integer> categoryIds);
 

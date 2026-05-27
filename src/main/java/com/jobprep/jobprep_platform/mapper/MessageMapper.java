@@ -6,7 +6,7 @@ import com.jobprep.jobprep_platform.model.dto.message.MessageQueryParams;
 import com.jobprep.jobprep_platform.model.entity.Message;
 import com.jobprep.jobprep_platform.model.vo.message.UnreadCountByType;
 
-import io.lettuce.core.dynamic.annotation.Param;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
 public interface MessageMapper {
     int insert(Message message);
 
-    List<Message> selectByUserId(Long userid);
+    List<Message> selectByUserId(@Param("userId") Long userId);
 
     /**
      * select message based on userid/search params/offset
