@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jobprep.jobprep_platform.mapper.resumematch.ResumeMatchJobMapper">
+
+    <sql id="resumeMatchJobColumns">
+        job_id,
+        user_id,
+        object_key,
+        original_file_name,
+        content_type,
+        jd_text,
+        status,
+        progress,
+        score,
+        summary,
+        strengths_json,
+        gaps_json,
+        recommendations_json,
+        error_message,
+        resume_text_hash,
+        jd_hash,
+        created_at,
+        updated_at,
+        completed_at
+    </sql>
+
+    <insert id="insert" parameterType="com.jobprep.jobprep_platform.model.entity.resumematch.ResumeMatchJob" useGeneratedKeys="true" keyProperty="jobId">
+        INSERT INTO resume_match_job (
+            user_id,
+            object_key,
+            original_file_name,
+            content_type,
+            jd_text,
+            status,
+            progress,
+            jd_hash
+        ) VALUES (
+            #{userId},
+            #{objectKey},
+            #{originalFileName},
+            #{contentType},
+            #{jdText},
+            #{status},
+            #{progress},
+            #{jdHash}
+        )
+    </insert>
+
+    <select id="findById" resultType="com.jobprep.jobprep_platform.model.entity.resumematch.ResumeMatchJob">
+        SELECT
+            <include refid="resumeMatchJobColumns"/>
+        FROM resume_match_job
+        WHERE job_id = #{jobId}
+    </select>
+
+    <select id="findByIdAndUserId" resultType="com.jobprep.jobprep_platform.model.entity.resumematch.ResumeMatchJob">
+        SELECT
+            <include refid="resumeMatchJobColumns"/>
+        FROM resume_match_job
+        WHERE job_id = #{jobId}
+          AND user_id = #{userId}
+    </select>
+
+    <update id="updateObjectKey">
+        UPDATE resume_match_job
+        SET object_key = #{objectKey},
+            updated_at = NOW()
+        WHERE job_id = #{jobId}
+    </update>
+
+    <update id="markUploaded">
+        UPDATE resume_match_job
+        SET status = 'UPLOADED',
+            progress = 15,
+            error_message = NULL,
+            updated_at = NOW()
+        WHERE job_id = #{jobId}
+          AND status = 'UPLOAD_PENDING'
+    </update>
+
+    <update id="updateStatusProgress">
+        UPDATE resume_match_job
+        SET status = #{status},
+            progress = #{progress},
+            error_message = #{errorMessage},
+            updated_at = NOW()
+        WHERE job_id = #{jobId}
+    </update>
+
+    <update id="updateResult" parameterType="com.jobprep.jobprep_platform.model.entity.resumematch.ResumeMatchJob">
+        UPDATE resume_match_job
+        SET status = 'COMPLETED',
+            progress = 100,
+            score = #{score},
+            summary = #{summary},
+            strengths_json = #{strengthsJson},
+            gaps_json = #{gapsJson},
+            recommendations_json = #{recommendationsJson},
+            resume_text_hash = #{resumeTextHash},
+            error_message = NULL,
+            completed_at = NOW(),
+            updated_at = NOW()
+        WHERE job_id = #{jobId}
+    </update>
+
+    <update id="updateFailure">
+        UPDATE resume_match_job
+        SET status = 'FAILED',
+            progress = 100,
+            error_message = #{errorMessage},
+            completed_at = NOW(),
+            updated_at = NOW()
+        WHERE job_id = #{jobId}
+    </update>
+</mapper>

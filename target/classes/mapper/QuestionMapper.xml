@@ -98,6 +98,14 @@
         LIMIT 20
     </select>
 
+    <select id="findAllForRagIndex" resultType="com.jobprep.jobprep_platform.model.entity.Question">
+        SELECT
+            <include refid="questionColumns"/>
+        FROM question
+        ORDER BY updated_at DESC, question_id DESC
+        LIMIT #{limit}
+    </select>
+
     <update id="update">
         UPDATE question
         <set>

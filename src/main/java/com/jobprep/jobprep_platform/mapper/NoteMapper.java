@@ -27,6 +27,8 @@ public interface NoteMapper {
     
     List<Note> findByAuthorId(@Param("authorId") Long authorId);
 
+    List<Note> findAllForRagIndex(@Param("limit") int limit);
+
     Set<Integer> filterFinishedQuestionIdsByUser(@Param("authorId")Long authorId,
                                                 @Param("questionIds")List<Integer> questionIds);
     

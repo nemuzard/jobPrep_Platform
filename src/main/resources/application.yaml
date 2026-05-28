@@ -20,6 +20,19 @@ spring:
           max-idle: 8
           min-idle: 0
           max-wait: 2000
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:jobprep}
+    password: ${RABBITMQ_PASSWORD:jobprep123}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2000
+          max-attempts: 3
+          multiplier: 2
+        default-requeue-rejected: false
   mail:
     host: smtp.gmail.com
     port: 587
@@ -54,6 +67,42 @@ mail:
     expire-minutes: 15
     limit-expire-seconds: 60
     template-path: "templates/mail/verify-code.html"
+
+app:
+  resume-match:
+    worker:
+      enabled: ${RESUME_MATCH_WORKER_ENABLED:true}
+    queue:
+      exchange: resume.match.exchange
+      routing-key: resume.match.parse-score
+      queue-name: resume.match.parse-score.queue
+    storage:
+      provider: local
+      local-root: ${RESUME_OBJECT_ROOT:${user.dir}/tmp/resume-objects}
+      upload-url-ttl-seconds: 900
+    rate-limit:
+      capacity: 5
+      refill-tokens: 5
+      refill-seconds: 60
+    cache:
+      result-ttl-minutes: 720
+  ai:
+    provider: ${AI_PROVIDER:ollama}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      model: ${OLLAMA_MODEL:llama3.1:8b}
+      embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+      timeout-seconds: 120
+  rag:
+    pgvector:
+      url: ${RAG_VECTOR_JDBC_URL:jdbc:postgresql://localhost:5433/jobprep_rag}
+      username: ${RAG_VECTOR_USERNAME:jobprep}
+      password: ${RAG_VECTOR_PASSWORD:jobprep123}
+      table-name: learning_resource_embedding
+      embedding-dimension: 768
+    retrieval:
+      top-k: 6
+      cache-ttl-minutes: 720
 
 logging:
   level:

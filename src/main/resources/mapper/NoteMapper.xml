@@ -96,6 +96,14 @@
         ORDER BY n.created_at DESC, n.note_id DESC
     </select>
 
+    <select id="findAllForRagIndex" resultType="com.jobprep.jobprep_platform.model.entity.Note">
+        SELECT
+            <include refid="noteColumns"/>
+        FROM note n
+        ORDER BY n.updated_at DESC, n.note_id DESC
+        LIMIT #{limit}
+    </select>
+
     <select id="filterFinishedQuestionIdsByUser" resultType="integer">
         SELECT DISTINCT question_id
         FROM note

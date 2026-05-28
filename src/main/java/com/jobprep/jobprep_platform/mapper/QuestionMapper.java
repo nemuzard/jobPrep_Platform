@@ -28,6 +28,8 @@ public interface QuestionMapper {
     Question findByTitle(@Param("title") String title);
 
     List<Question> findByKeyword(@Param("keyword") String keyword);
+
+    List<Question> findAllForRagIndex(@Param("limit") int limit);
     
     // update problem, 1-success,2-failed
     int update(@Param("question") Question question);
